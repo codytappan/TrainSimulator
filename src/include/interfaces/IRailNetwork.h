@@ -6,7 +6,7 @@
 namespace Rail {
 
     class IRailNetwork {
-
+        
     };
 
 }
