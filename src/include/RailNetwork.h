@@ -28,10 +28,10 @@ namespace Rail {
         virtual ISegment* NewSegment(int length) const {
             return new Segment(length);
         }
-        virtual IConnector NewConnector() const {
+        virtual IConnector* NewConnector() const {
             return new Connector();
         };
-        virtual ITerminator NewTerminator() const {
+        virtual ITerminator* NewTerminator() const {
             return new Terminator();
         };
     }

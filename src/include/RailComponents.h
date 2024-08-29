@@ -54,13 +54,18 @@ namespace Rail {
         Segment(int length);
         ~Segment();
 
+        // IComponent
+        virtual std::vector<const IComponent&> GetNext(Direction d);
+        virtual const IComponent& Traverse(Direction d);
+        
+        // ISegment
         virtual unsigned int GetLength() {
             return mLength;
         }
 
-        // IComponent
-        virtual std::vector<const IComponent&> GetNext(Direction d);
-        virtual const IComponent& Traverse(Direction d);
+        virtual void AddSignal(Direction d);
+        virtual SignalState GetSignalState(Direction d);
+        virtual void SetSignalState(SignalState state, Direction d);
 
         private:
         unsigned int mLength = 0;
