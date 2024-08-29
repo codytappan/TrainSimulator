@@ -3,18 +3,10 @@
 
 #include <vector>
 
-namespace Rail {
-    /**
-     * Rail direction is an arbitrary conctept to outline the direction of travel within the network
-     * 
-     * Traditionally "Up" refers to "towards city center" and "Down" is the opposite
-     */
-    typedef enum Direction {
-        UNKNOWN = 0,
-        UP,
-        DOWN
-    };
+#include "RailDefinitions.h"
 
+namespace Rail {
+    // A general class to represent all components in a network that a train can travel across
     class IComponent {
         /**
          *  Called to get the next component(s) in a given direction, ignoring traversal rules
@@ -32,6 +24,25 @@ namespace Rail {
          */
         virtual const IComponent& Traverse(Direction d) = 0;
     };
+
+    // An interface which represents a segment in the train network
+    class ISegment : public IComponent {
+        /**
+         * Called to get the length of a given segment
+         */
+        virtual unsigned int GetLength() = 0;
+
+        /**
+         * Get the signal state of a segment in the given direction
+         */
+        virtual SignalState GetSignalState(Direction d) = 0;
+    };
+
+    // An interface which represents connectors in the train network
+    class IConnector : public IComponent {};
+
+    // An interface which represents terminators in the train network
+    class ITerminator : public IConnector {};
 }
 
 #endif

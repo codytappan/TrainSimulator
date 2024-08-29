@@ -6,7 +6,12 @@
 namespace Rail {
 
     class RailNetwork : public IRailNetwork {
+        public:
+        RailNetwork();
+        virtual ~RailNetwork();
 
+        private:
+        
     };
 
 }
