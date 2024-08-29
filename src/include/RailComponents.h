@@ -30,12 +30,16 @@ namespace Rail {
     /**
      * A connector is an element in the rail network which connects one or more segments of track
      * 
-     * This class represents both Segment - Segment links and Junctions
+     * This class represents both direct segment links and junctions
      */
     class Connector : public IConnector {
         public:
         Connector();
         virtual ~Connector();
+
+        // IComponent
+        virtual std::vector<const IComponent&> GetNext(Direction d);
+        virtual const IComponent& Traverse(Direction d);
 
         private:
         std::vector<const ISegment&> mConnectedSegments;
@@ -54,6 +58,10 @@ namespace Rail {
             return mLength;
         }
 
+        // IComponent
+        virtual std::vector<const IComponent&> GetNext(Direction d);
+        virtual const IComponent& Traverse(Direction d);
+
         private:
         unsigned int mLength = 0;
 
@@ -71,6 +79,10 @@ namespace Rail {
         public:
         Terminator();
         virtual ~Terminator();
+
+        // IComponent
+        virtual std::vector<const IComponent&> GetNext(Direction d);
+        virtual const IComponent& Traverse(Direction d);
     };
 
 } // namespace Rail

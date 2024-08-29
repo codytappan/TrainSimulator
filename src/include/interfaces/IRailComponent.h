@@ -33,9 +33,19 @@ namespace Rail {
         virtual unsigned int GetLength() = 0;
 
         /**
+         * Add a signal on the segment in the given direction
+         */
+        virtual void AddSignal(Direction d) = 0;
+
+        /**
          * Get the signal state of a segment in the given direction
          */
         virtual SignalState GetSignalState(Direction d) = 0;
+
+        /**
+         * Set a signal state on the segment in the given direction
+         */
+        virtual void SetSignalState(SignalState state, Direction d) = 0;
     };
 
     // An interface which represents connectors in the train network
@@ -43,6 +53,12 @@ namespace Rail {
 
     // An interface which represents terminators in the train network
     class ITerminator : public IConnector {};
+
+    class IComponentFactory {
+        virtual ISegment* NewSegment(int length) = 0;
+        virtual IConnector* NewConnector() = 0;
+        virtual ITerminator* NewTerminator() = 0;
+    };
 }
 
 #endif

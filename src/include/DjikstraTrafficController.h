@@ -3,10 +3,15 @@
 
 #include "interfaces/ITrafficController.h"
 
-namespace TrafficControl {
+namespace Traffic {
     
     class DjikstraController : public ITrafficController {
+        public:
+        DjikstraController();
+        virtual ~DjikstraController();
 
+        // ITrafficController
+        virtual void SetOptimalPath(Rail::IConnector& src, Rail::IConnector& dst);
     };
 
 }

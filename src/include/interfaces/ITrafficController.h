@@ -3,7 +3,7 @@
 
 #include "IRailNetwork.h"
 
-namespace TrafficControl {
+namespace Traffic {
 
     class ITrafficController {
         /**
