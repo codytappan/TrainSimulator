@@ -1,9 +1,12 @@
 #ifndef RailComponents_H
 #define RailComponents_H
 
-#include <vector>
-
 #include "interfaces/IRailComponent.h"
+
+#include <string>
+#include <set>
+#include <map>
+
 
 namespace Rail {
     /**
@@ -12,8 +15,8 @@ namespace Rail {
      */
     class Signal {
         public:
-        Signal();
-        ~Signal();
+        Signal() {};
+        ~Signal() {};
 
         SignalState GetState() {
             return mState;
@@ -24,7 +27,7 @@ namespace Rail {
         }
 
         private:
-        SignalState mState = SignalState::UNKNOWN;
+        SignalState mState = SignalState::DISABLED;
     };
 
     /**
@@ -34,16 +37,29 @@ namespace Rail {
      */
     class Connector : public IConnector {
         public:
-        Connector();
+        Connector(const std::string& name);
         virtual ~Connector();
 
+        /**
+         *   Interface Implementations
+         */
+
         // IComponent
-        virtual std::vector<const IComponent&> GetNext(Direction d);
-        virtual const IComponent& Traverse(Direction d);
+        virtual std::string GetName();
+        virtual std::string GetInfo();
+        virtual const IComponent* Traverse(const IComponent* src, Direction d);
+
+        // IConnector
+        virtual std::set<ISegment*> GetNext(ISegment* src);
+        virtual void Connect(ISegment* target);
+        virtual void Select(ISegment* s1, ISegment* s2);
+        virtual void Fix(ISegment* src);
 
         private:
-        std::vector<const ISegment&> mConnectedSegments;
-        unsigned int mUpSegmentIndex = -1;
+        std::string mName = "";
+
+        std::set<ISegment*> mAvailableSegments;
+        std::pair<ISegment*, ISegment*> mSelectedSegments;
     };
 
     /**
@@ -51,43 +67,82 @@ namespace Rail {
      */
     class Segment : public ISegment {
         public:
-        Segment(int length);
-        ~Segment();
-
-        // IComponent
-        virtual std::vector<const IComponent&> GetNext(Direction d);
-        virtual const IComponent& Traverse(Direction d);
+        Segment(unsigned int length);
+        Segment(const std::string& name, unsigned int length);
+        virtual ~Segment();
         
-        // ISegment
-        virtual unsigned int GetLength() {
+        unsigned int GetLength() {
             return mLength;
         }
 
+        /**
+         *   Interface Implementations
+         */
+
+        // IComponent
+        virtual std::string GetName();
+        virtual std::string GetInfo();
+        virtual const IComponent* Traverse(const IComponent* src, Direction d);
+
+        // ISegment
         virtual void AddSignal(Direction d);
         virtual SignalState GetSignalState(Direction d);
         virtual void SetSignalState(SignalState state, Direction d);
+        virtual IConnector* GetNext(Direction d);
+        virtual void Connect(IConnector* target, Direction d);
 
         private:
+        std::string mName = "";
         unsigned int mLength = 0;
 
-        Connector &mUpConnector;
-        Signal &mUpSignal;
-
-        Connector &mDownConnector;
-        Signal &mDownSignal;
+        std::map<Direction, IConnector*> mConnectorMap;
+        std::map<Direction, Signal> mSignalMap;
     };
 
     /**
      * A terminator is a component of the rail network which represents the destination of a train
      */
-    class Terminator : public ITerminator {
+    class Terminator : public Connector {
         public:
-        Terminator();
+        Terminator(const std::string& name);
         virtual ~Terminator();
 
-        // IComponent
-        virtual std::vector<const IComponent&> GetNext(Direction d);
-        virtual const IComponent& Traverse(Direction d);
+        /**
+         *   Interface Implementations
+         */
+
+        virtual const IComponent* Traverse(const IComponent* src, Direction d) override;
+
+        private:
+        std::string mName = "";
+    };
+
+    class ComponentFactory : public IComponentFactory {
+        public: 
+        
+        ComponentFactory() {}
+        virtual ~ComponentFactory() {}
+
+        /**
+         * Create a new Segment
+         */
+        virtual ISegment* NewSegment(const std::string& name, unsigned int length) const {
+            return new Segment(name, length);
+        }
+
+        /**
+         * Create a new Connector
+         */
+        virtual IConnector* NewConnector(const std::string& name) const {
+            return new Connector(name);
+        }
+
+        /**
+         * Create a new Terminator
+         */
+        virtual IConnector* NewTerminator(const std::string& name) const {
+            return new Terminator(name);
+        }
     };
 
 } // namespace Rail
