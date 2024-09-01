@@ -68,7 +68,7 @@ void Connector::Select(ISegment *target) {
  * Segment Implementation
  */
 Segment::Segment(const std::string& name, unsigned int length) : 
-    mLength(length), mName(name) {
+    mName(name), mLength(length) {
 
 }
 

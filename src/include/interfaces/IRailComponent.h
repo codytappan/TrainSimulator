@@ -29,6 +29,24 @@ namespace Rail {
         virtual const IComponent* Traverse(const IComponent* src, Direction d) = 0;
     };
 
+    // Forward declaration of the Connector interface
+    class IConnector;
+
+    class ISegment : public IComponent {
+        /**
+         *  Called to get the next connector(s) in a given direction, ignoring traversal rules
+         *
+         *  @param d The direction in which we are traversing the element
+         *  @return A vector of components connected to this component
+         */
+        virtual IConnector* GetNext(Direction d) = 0;
+    
+        /**
+         *  Called to connect to a connector in the network
+         */
+        virtual void Connect(IConnector* target, Direction d) = 0;
+    };
+
     class IConnector : public IComponent {
         /**
          *  Called to get the next segments(s) in a given direction, ignoring traversal rules
@@ -47,21 +65,6 @@ namespace Rail {
          *  Called to select between connected segments in a network
          */
         virtual void Select(ISegment* target) = 0;
-    };
-
-    class ISegment : public IComponent {
-        /**
-         *  Called to get the next connector(s) in a given direction, ignoring traversal rules
-         *
-         *  @param d The direction in which we are traversing the element
-         *  @return A vector of components connected to this component
-         */
-        virtual IConnector* GetNext(Direction d) = 0;
-    
-        /**
-         *  Called to connect to a connector in the network
-         */
-        virtual void Connect(IConnector* target, Direction d) = 0;
     };
 }
 

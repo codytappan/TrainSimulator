@@ -15,8 +15,8 @@ namespace Rail {
      */
     class Signal {
         public:
-        Signal();
-        ~Signal();
+        Signal() {};
+        ~Signal() {};
 
         SignalState GetState() {
             return mState;
@@ -27,7 +27,7 @@ namespace Rail {
         }
 
         private:
-        SignalState mState = SignalState::UNKNOWN;
+        SignalState mState = SignalState::DISABLED;
     };
 
     /**
