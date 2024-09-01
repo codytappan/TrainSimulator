@@ -1,63 +1,67 @@
 #ifndef IRailComponent_H
 #define IRailComponent_H
 
-#include <vector>
+#include <set>
 
 #include "RailDefinitions.h"
 
 namespace Rail {
     // A general class to represent all components in a network that a train can travel across
     class IComponent {
+        public:
         /**
-         *  Called to get the next component(s) in a given direction, ignoring traversal rules
+         * Called to get the name of the component, for debug and logging purposes
+         */
+        virtual std::string GetName() = 0;
+
+        /**
+         * Called to get info on the component, for debug and logging purposes
+         */
+        virtual std::string GetInfo() = 0;
+
+        /**
+         *  Called when a train wants to traverse the element in the given direction
+         * 
+         *  @param src The source element from which the train is arriving
+         *  @param d The direction in which we are traversing the element
+         *  @return const ITraversableElement& A reference to the element we end on after traversing one step
+         */
+        virtual const IComponent* Traverse(const IComponent* src, Direction d) = 0;
+    };
+
+    class IConnector : public IComponent {
+        /**
+         *  Called to get the next segments(s) in a given direction, ignoring traversal rules
          *
          *  @param d The direction in which we are traversing the element
-         *  @return const ITraversableElement& A reference to the element we end on after traversing one step
+         *  @return A vector of components connected to this component
          */
-        virtual std::vector<const IComponent&> GetNext(Direction d) = 0;
+        virtual std::set<ISegment*> GetNext(Direction d) = 0;
 
         /**
-         *  Called to traverse the element in the given direction
-         * 
-         *  @param d The direction in which we are traversing the element
-         *  @return const ITraversableElement& A reference to the element we end on after traversing one step
+         *  Called to connect to a segment in the network
          */
-        virtual const IComponent& Traverse(Direction d) = 0;
+        virtual void Connect(ISegment* target, Direction d) = 0;
+
+        /**
+         *  Called to select between connected segments in a network
+         */
+        virtual void Select(ISegment* target) = 0;
     };
 
-    // An interface which represents a segment in the train network
     class ISegment : public IComponent {
         /**
-         * Called to get the length of a given segment
+         *  Called to get the next connector(s) in a given direction, ignoring traversal rules
+         *
+         *  @param d The direction in which we are traversing the element
+         *  @return A vector of components connected to this component
          */
-        virtual unsigned int GetLength() = 0;
-
+        virtual IConnector* GetNext(Direction d) = 0;
+    
         /**
-         * Add a signal on the segment in the given direction
+         *  Called to connect to a connector in the network
          */
-        virtual void AddSignal(Direction d) = 0;
-
-        /**
-         * Get the signal state of a segment in the given direction
-         */
-        virtual SignalState GetSignalState(Direction d) = 0;
-
-        /**
-         * Set a signal state on the segment in the given direction
-         */
-        virtual void SetSignalState(SignalState state, Direction d) = 0;
-    };
-
-    // An interface which represents connectors in the train network
-    class IConnector : public IComponent {};
-
-    // An interface which represents terminators in the train network
-    class ITerminator : public IConnector {};
-
-    class IComponentFactory {
-        virtual ISegment* NewSegment(int length) = 0;
-        virtual IConnector* NewConnector() = 0;
-        virtual ITerminator* NewTerminator() = 0;
+        virtual void Connect(IConnector* target, Direction d) = 0;
     };
 }
 

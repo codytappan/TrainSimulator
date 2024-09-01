@@ -1,7 +1,7 @@
 #ifndef ITrafficController_H
 #define ITrafficController_H
 
-#include "IRailNetwork.h"
+#include "IRailComponent.h"
 
 namespace Traffic {
 
@@ -10,7 +10,7 @@ namespace Traffic {
          *  Find the optimal path between two points in the network, and toggle junctions such that the path
          *  will be traversed
          */
-        virtual void SetOptimalPath(Rail::IConnector& src, Rail::IConnector& dst) = 0;
+        virtual void SetOptimalPath(Rail::IComponent& src, Rail::IComponent& dst) = 0;
     };
 
 }

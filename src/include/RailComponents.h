@@ -1,9 +1,12 @@
 #ifndef RailComponents_H
 #define RailComponents_H
 
-#include <vector>
-
 #include "interfaces/IRailComponent.h"
+
+#include <string>
+#include <set>
+#include <map>
+
 
 namespace Rail {
     /**
@@ -34,16 +37,50 @@ namespace Rail {
      */
     class Connector : public IConnector {
         public:
-        Connector();
+        Connector(const std::string& name);
         virtual ~Connector();
 
+        /**
+         *   Interface Implementations
+         */
+
         // IComponent
-        virtual std::vector<const IComponent&> GetNext(Direction d);
-        virtual const IComponent& Traverse(Direction d);
+        virtual std::string GetName();
+        virtual std::string GetInfo();
+        virtual const IComponent* Traverse(const IComponent* src, Direction d);
+
+        // IConnector
+        virtual std::set<ISegment*> GetNext(Direction d);
+        virtual void Connect(ISegment* target, Direction d);
+        virtual void Select(ISegment* target);
 
         private:
-        std::vector<const ISegment&> mConnectedSegments;
-        unsigned int mUpSegmentIndex = -1;
+        std::string mName = "";
+
+        std::set<ISegment*> mAvailableSegments;
+        std::map<Direction, ISegment*> mConnectedSegmentMap;
+    };
+
+    /**
+     * A terminator is a component of the rail network which represents the destination of a train
+     */
+    class Terminator : public IConnector {
+        public:
+        Terminator(const std::string& name);
+        virtual ~Terminator();
+
+        /**
+         *   Interface Implementations
+         */
+
+        // IComponent
+        virtual std::string GetName();
+        virtual std::string GetInfo();
+        virtual const IComponent* Traverse(const IComponent* src, Direction d);
+
+
+        private:
+        std::string mName = "";
     };
 
     /**
@@ -51,43 +88,39 @@ namespace Rail {
      */
     class Segment : public ISegment {
         public:
-        Segment(int length);
-        ~Segment();
-
-        // IComponent
-        virtual std::vector<const IComponent&> GetNext(Direction d);
-        virtual const IComponent& Traverse(Direction d);
+        Segment(unsigned int length);
+        Segment(const std::string& name, unsigned int length);
+        virtual ~Segment();
         
-        // ISegment
-        virtual unsigned int GetLength() {
+        unsigned int GetLength() {
             return mLength;
         }
 
-        virtual void AddSignal(Direction d);
-        virtual SignalState GetSignalState(Direction d);
-        virtual void SetSignalState(SignalState state, Direction d);
+        // Signal Logic
+        void AddSignal(Direction d);
+        SignalState GetSignalState(Direction d);
+        void SetSignalState(SignalState state, Direction d);
 
-        private:
-        unsigned int mLength = 0;
 
-        Connector &mUpConnector;
-        Signal &mUpSignal;
-
-        Connector &mDownConnector;
-        Signal &mDownSignal;
-    };
-
-    /**
-     * A terminator is a component of the rail network which represents the destination of a train
-     */
-    class Terminator : public ITerminator {
-        public:
-        Terminator();
-        virtual ~Terminator();
+        /**
+         *   Interface Implementations
+         */
 
         // IComponent
-        virtual std::vector<const IComponent&> GetNext(Direction d);
-        virtual const IComponent& Traverse(Direction d);
+        virtual std::string GetName();
+        virtual std::string GetInfo();
+        virtual const IComponent* Traverse(const IComponent* src, Direction d);
+
+        // ISegment
+        virtual IConnector* GetNext(Direction d);
+        virtual void Connect(IConnector* target, Direction d);
+
+        private:
+        std::string mName = "";
+        unsigned int mLength = 0;
+
+        std::map<Direction, IConnector*> mConnectorMap;
+        std::map<Direction, Signal> mSignalMap;
     };
 
 } // namespace Rail
