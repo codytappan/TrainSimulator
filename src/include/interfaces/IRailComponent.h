@@ -34,6 +34,7 @@ namespace Rail {
 
     // Interface representing a segment of track in the RailNetwork
     class ISegment : public IComponent {
+        public:
         /**
          *  Called to get the next connector(s) in a given direction, ignoring traversal rules
          *
@@ -53,6 +54,7 @@ namespace Rail {
 
     // Interface representing connections between different segments within the RailNetwork
     class IConnector : public IComponent {
+        public:
         /**
          *  Called to get the next segments(s), ignoring traversal rules
          *
@@ -81,20 +83,21 @@ namespace Rail {
 
     // Class interface to handle dependency injection of component types
     class IComponentFactory {
+        public:
         /**
          * Create a new Segment
          */
-        virtual ISegment* NewSegment(const std::string& name, unsigned int length) = 0;
+        virtual ISegment* NewSegment(const std::string& name, unsigned int length) const = 0;
 
         /**
          * Create a new Connector
          */
-        virtual IConnector* NewConnector(const std::string& name) = 0;
+        virtual IConnector* NewConnector(const std::string& name) const = 0;
 
         /**
          * Create a new Terminator
          */
-        virtual IConnector* NewTerminator(const std::string& name) = 0;
+        virtual IConnector* NewTerminator(const std::string& name) const = 0;
     };
 }
 

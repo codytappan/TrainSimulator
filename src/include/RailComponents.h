@@ -129,21 +129,21 @@ namespace Rail {
         /**
          * Create a new Segment
          */
-        virtual ISegment* NewSegment(const std::string& name, unsigned int length) {
+        virtual ISegment* NewSegment(const std::string& name, unsigned int length) const {
             return new Segment(name, length);
         }
 
         /**
          * Create a new Connector
          */
-        virtual IConnector* NewConnector(const std::string& name) {
+        virtual IConnector* NewConnector(const std::string& name) const {
             return new Connector(name);
         }
 
         /**
          * Create a new Terminator
          */
-        virtual IConnector* NewTerminator(const std::string& name) {
+        virtual IConnector* NewTerminator(const std::string& name) const {
             return new Terminator(name);
         }
     };
