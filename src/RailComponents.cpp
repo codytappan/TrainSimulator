@@ -23,44 +23,62 @@ std::string Connector::GetInfo() {
 }
 
 const IComponent* Connector::Traverse(const IComponent* src, Direction d) {
-    // Check to make sure that the train is arriving from the connected component
-    if(src != mConnectedSegmentMap.at(ReverseDirection(d))) {
+    IComponent* target = nullptr;
+    if(src == mSelectedSegments.first) {
+        target = mSelectedSegments.second;
+    } else if (src == mSelectedSegments.second) {
+        target = mSelectedSegments.first;
+    } 
+    
+    if (target == nullptr) {
+        // Traversing network not from a selected segment
         printf("ERROR CRASH Train crossing improperly switched connector");
         return src;
     }
 
-    return mConnectedSegmentMap.at(d);
+    return target;
 }
 
-std::set<ISegment*> Connector::GetNext(Direction d) {
-    // If we're looking "Up" return a list of connected components
-    if (d == Direction::UP) {
-        return mAvailableSegments;
+std::set<ISegment*> Connector::GetNext(ISegment* src) {
+    if(mAvailableSegments.find(src) == mAvailableSegments.end()) {
+        // Available segments does not contain src
+        printf("ERROR GetNext on connector with invalid source segment");
+        return std::set<ISegment*>();
     }
 
-    // If we're looking "Down" return the single connected component
-    return std::set<ISegment*>() = { mConnectedSegmentMap.at(Direction::DOWN) };
-}
-
-void Connector::Connect(ISegment* target, Direction d) {
-    // TODO null check   
-    if (d == Direction::UP) {
-        // If we're connecting "Up" side, append the target to our available segments
-        mAvailableSegments.insert(target);
-    } 
+    // Return a subset of available connectors, without src
+    std::set<ISegment*> ret = mAvailableSegments;
+    ret.erase(src);
     
-    mConnectedSegmentMap.at(d) = target;
+    return ret;
 }
 
-void Connector::Select(ISegment *target) {
+void Connector::Connect(ISegment* target) {
     // TODO null check
-    // Check to make sure that our target is valid within our connected segments
-    if(std::find(mAvailableSegments.begin(), mAvailableSegments.end(), target) == mAvailableSegments.end()) {
+    mAvailableSegments.insert(target);
+
+    // Automatically select segments as they are connected
+    if(mSelectedSegments.first == nullptr) {
+        mSelectedSegments.first = target;
+    } else if (mSelectedSegments.second == nullptr) {
+        mSelectedSegments.second = target;
+    }
+}
+
+void Connector::Select(ISegment *s1, ISegment *s2) {
+    // TODO null check
+    // Check to make sure that our targets are valid within our connected segments
+    if(mAvailableSegments.find(s1) == mAvailableSegments.end() || mAvailableSegments.find(s2) == mAvailableSegments.end()) {
         printf("ERROR Attempting to select a segment not in the available list");
         return;
     }
 
-    mConnectedSegmentMap.at(Direction::UP) = target;
+    mSelectedSegments = std::pair<ISegment*, ISegment*>(s1, s2);
+}
+
+
+void Connector::Fix(ISegment* src) {
+    //TODO implement logic to fix a specific segment
 }
 
 
@@ -129,4 +147,14 @@ IConnector* Segment::GetNext(Direction d) {
 void Segment::Connect(IConnector* target, Direction d) {
     // TODO Null check
     mConnectorMap.at(d) = target;
+}
+
+/**
+ *  Terminator Implementation
+ */
+
+const IComponent* Terminator::Traverse(const IComponent* src, Direction d) {
+    // TODO Handle case where we are traversing in to a terminator
+
+    // The TrainSimulator needs to be notified that a Train has reached a destination
 }
