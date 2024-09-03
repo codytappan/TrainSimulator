@@ -23,27 +23,54 @@ RailNetwork::~RailNetwork() {
     }
 }
 
-/**
- *  Create a segment and attach it to an existing segment, in the given direction
- */
-ISegment* RailNetwork::AddSegment(ISegment* src, Direction d, unsigned int length) {
-    IConnector* connector = src->GetNext(d);
-    if (connector == nullptr) {
-        // If the segment does not already have a connector in this direction, create one
-        connector = mComponentFactory.NewConnector("DefaultConnectorName");
-        src->Connect(connector, d);
-
-        // Save the new Connector
-        mConnectors.push_back(connector);
-    }
-
+ISegment* RailNetwork::CreateSegment(unsigned int length) {
     ISegment *segment = mComponentFactory.NewSegment("DefaultSegmentName", length);
-    segment->Connect(connector, ReverseDirection(d));
-
-    // Save the new Segment
     mSegments.push_back(segment);
 
     return segment;
+}
+
+ISegment* RailNetwork::AttachSegment(ISegment* src, Direction d, unsigned int length) {
+    ISegment *segment = CreateSegment(length);
+
+    // Where possible we connect segments UP<->DOWN sides to ease logic of traversing network
+    ConnectSegments(src, d, segment, ReverseDirection(d));
+
+    return segment;
+}
+
+void RailNetwork::ConnectSegments(ISegment* s1, Direction d1, ISegment* s2, Direction d2) {
+    IConnector* c1 = s1->GetNext(d1);
+    IConnector* c2 = s2->GetNext(d2);
+    IConnector* target = nullptr;
+
+    if(c1 != nullptr && c2 != nullptr) {
+        // If both segments are already connected to other segments in the given directions
+        // We cannot complete this operation
+        printf("ERROR Connecting two already connected segments");
+        return;
+    }
+
+    if( c1 == nullptr && c2 == nullptr) {
+        // If neither segment is connected we need to create a new connector for this op
+        target = mComponentFactory.NewConnector("DefaultConnectorName");
+        mConnectors.push_back(target);
+    } else {
+        // Target the existing connector
+        target = (c1 != nullptr ? c1 : c2);
+    }
+
+    // Connect the target connector to both segments
+    target->Connect(s1);
+    target->Connect(s2);
+
+    if(c1 == nullptr) {
+        s1->Connect(target, d1);
+    }
+
+    if(c2 == nullptr) {
+        s2->Connect(target, d2);
+    }
 }
 
 /**
@@ -58,19 +85,31 @@ void RailNetwork::RouteSegment(ISegment* src, ISegment* dst) {
     downConnector->Select(src, dst);
 }
 
-/**
- *  Set the given signal to a specific state
- */
-void RailNetwork::SetSignal(ISegment* segment, Direction d, SignalState state) {
-    //TODO add signal logic to segment interface and use here
+void RailNetwork::AddSignal(ISegment* segment, Direction d, SignalState state) {
+    SignalState currentState = segment->GetSignalState(d);
+    if (currentState != SignalState::DISABLED) {
+        printf("ERROR Adding signal to location where signal has already been added");
+        return;
+    }
+
+    segment->AddSignal(d);
+    segment->SetSignalState(state, d);
 }
 
-/**
- *  Create a terminator and attach it to an existing segment, in the given direction
- */
+void RailNetwork::SetSignal(ISegment* segment, Direction d, SignalState state) {
+    SignalState currentState = segment->GetSignalState(d);
+    if (currentState == SignalState::DISABLED) {
+        printf("ERROR Setting signal state in location where no signal exits");
+        return;
+    }
+
+    segment->SetSignalState(state, d);
+}
+
 void RailNetwork::AddTerminator(ISegment* src, Direction d) {
     if(src->GetNext(d) != nullptr) {
         printf("ERROR Connecting terminator to connected segment");
+        return;
     }
 
     IConnector* terminator = mComponentFactory.NewTerminator("DefaultTerminatorName");

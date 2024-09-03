@@ -75,12 +75,6 @@ namespace Rail {
             return mLength;
         }
 
-        // Signal Logic
-        void AddSignal(Direction d);
-        SignalState GetSignalState(Direction d);
-        void SetSignalState(SignalState state, Direction d);
-
-
         /**
          *   Interface Implementations
          */
@@ -91,6 +85,9 @@ namespace Rail {
         virtual const IComponent* Traverse(const IComponent* src, Direction d);
 
         // ISegment
+        virtual void AddSignal(Direction d);
+        virtual SignalState GetSignalState(Direction d);
+        virtual void SetSignalState(SignalState state, Direction d);
         virtual IConnector* GetNext(Direction d);
         virtual void Connect(IConnector* target, Direction d);
 

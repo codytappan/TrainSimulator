@@ -157,4 +157,5 @@ const IComponent* Terminator::Traverse(const IComponent* src, Direction d) {
     // TODO Handle case where we are traversing in to a terminator
 
     // The TrainSimulator needs to be notified that a Train has reached a destination
+    return nullptr;
 }

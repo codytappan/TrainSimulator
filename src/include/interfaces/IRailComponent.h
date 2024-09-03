@@ -35,6 +35,31 @@ namespace Rail {
     // Interface representing a segment of track in the RailNetwork
     class ISegment : public IComponent {
         public:
+
+        /**
+         *  Add a signal to the segment, before the connector in the given direction
+         * 
+         *  @param d The side of the track to add the signal to
+         *  @note The default signal state will be RED for safety sake
+         */
+        virtual void AddSignal(Direction d) = 0;
+
+        /**
+         *  Gets the current state of the signal in the given direction
+         * 
+         *  @return SignalState If the segment contains a signal in the given direction return RED or GREEN,
+         *                      otherwise DISABLED is returned
+         */
+        virtual SignalState GetSignalState(Direction d) = 0;
+
+        /**
+         *  Set the state of the signal in the given direction
+         * 
+         *  @param state The state to set
+         *  @param d The side of the track on which to set the signal
+         */
+        virtual void SetSignalState(SignalState state, Direction d) = 0;
+
         /**
          *  Called to get the next connector(s) in a given direction, ignoring traversal rules
          *
