@@ -12,21 +12,27 @@ namespace Rail {
         /**
          * Called to get the name of the component, for debug and logging purposes
          */
-        virtual std::string GetName() = 0;
+        virtual const char * const GetName() const = 0;
 
         /**
          * Called to get info on the component, for debug and logging purposes
          */
-        virtual std::string GetInfo() = 0;
+        virtual const char * const GetInfo() const = 0;
+
+
+        /**
+         *  Get the length of the component
+         */
+        virtual unsigned int GetLength() const = 0;
 
         /**
          *  Called when a train wants to traverse the element in the given direction
          * 
          *  @param src The source element from which the train is arriving
          *  @param d The direction in which we are traversing the element
-         *  @return const ITraversableElement& A reference to the element we end on after traversing one step
+         *  @return const IComponent* A pointer to the element we end on after traversing
          */
-        virtual const IComponent* Traverse(const IComponent* src, Direction d) = 0;
+        virtual const IComponent* Traverse(const IComponent* src, Direction d) const = 0;
     };
 
     // Forward declaration of the Connector interface
@@ -50,7 +56,7 @@ namespace Rail {
          *  @return SignalState If the segment contains a signal in the given direction return RED or GREEN,
          *                      otherwise DISABLED is returned
          */
-        virtual SignalState GetSignalState(Direction d) = 0;
+        virtual SignalState GetSignalState(Direction d) const = 0;
 
         /**
          *  Set the state of the signal in the given direction
@@ -64,7 +70,7 @@ namespace Rail {
          *  Called to get the next connector(s) in a given direction, ignoring traversal rules
          *
          *  @param d The direction in which we are traversing the element
-         *  @return A vector of components connected to this component
+         *  @return A pointer to the connector in the given direction on this segment, or nullptr if not connected
          */
         virtual IConnector* GetNext(Direction d) = 0;
     

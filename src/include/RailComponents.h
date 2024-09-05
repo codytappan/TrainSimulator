@@ -18,7 +18,7 @@ namespace Rail {
         Signal() {};
         ~Signal() {};
 
-        SignalState GetState() {
+        SignalState GetState() const {
             return mState;
         }
 
@@ -45,9 +45,17 @@ namespace Rail {
          */
 
         // IComponent
-        virtual std::string GetName();
-        virtual std::string GetInfo();
-        virtual const IComponent* Traverse(const IComponent* src, Direction d);
+        virtual const char * const GetName() const {
+            return mName.c_str();
+        }
+
+        virtual const char * const GetInfo() const;
+
+        virtual unsigned int GetLength() const {
+            return 0;
+        }
+
+        virtual const IComponent* Traverse(const IComponent* src, Direction d) const;
 
         // IConnector
         virtual std::set<ISegment*> GetNext(ISegment* src);
@@ -70,23 +78,27 @@ namespace Rail {
         Segment(unsigned int length);
         Segment(const std::string& name, unsigned int length);
         virtual ~Segment();
-        
-        unsigned int GetLength() {
-            return mLength;
-        }
 
         /**
          *   Interface Implementations
          */
 
         // IComponent
-        virtual std::string GetName();
-        virtual std::string GetInfo();
-        virtual const IComponent* Traverse(const IComponent* src, Direction d);
+        virtual const char * const GetName() const {
+            return mName.c_str();
+        }
+
+        virtual const char * const GetInfo() const;
+
+        virtual unsigned int GetLength() const {
+            return mLength;
+        }
+
+        virtual const IComponent* Traverse(const IComponent* src, Direction d) const;
 
         // ISegment
         virtual void AddSignal(Direction d);
-        virtual SignalState GetSignalState(Direction d);
+        virtual SignalState GetSignalState(Direction d) const;
         virtual void SetSignalState(SignalState state, Direction d);
         virtual IConnector* GetNext(Direction d);
         virtual void Connect(IConnector* target, Direction d);
@@ -111,10 +123,7 @@ namespace Rail {
          *   Interface Implementations
          */
 
-        virtual const IComponent* Traverse(const IComponent* src, Direction d) override;
-
-        private:
-        std::string mName = "";
+        virtual const IComponent* Traverse(const IComponent* src, Direction d) const override;
     };
 
     class ComponentFactory : public IComponentFactory {

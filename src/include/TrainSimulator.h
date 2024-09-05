@@ -10,6 +10,24 @@ namespace Train {
         public:
         Simulator();
         ~Simulator();
+
+        /**
+         *  Build a rail network and populate it with trains
+         */
+        void Build();
+
+        /**
+         *  Run a built simulation
+         */
+        void Run();
+
+        /**
+         *  Validate the results of a simulation
+         */
+        void ValidateResults();
+
+        private:
+        Rail::RailNetwork mRailNetwork;
     };
 
 }
