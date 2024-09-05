@@ -106,10 +106,10 @@ void RailNetwork::SetSignal(ISegment* segment, Direction d, SignalState state) {
     segment->SetSignalState(state, d);
 }
 
-void RailNetwork::AddTerminator(ISegment* src, Direction d) {
+IConnector* RailNetwork::AddTerminator(ISegment* src, Direction d) {
     if(src->GetNext(d) != nullptr) {
         printf("ERROR Connecting terminator to connected segment");
-        return;
+        return nullptr;
     }
 
     IConnector* terminator = mComponentFactory.NewTerminator("DefaultTerminatorName");
@@ -117,4 +117,5 @@ void RailNetwork::AddTerminator(ISegment* src, Direction d) {
 
     // Save the new terminator
     mTerminators.push_back(terminator);
+    return terminator;
 }

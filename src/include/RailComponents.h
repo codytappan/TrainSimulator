@@ -113,6 +113,9 @@ namespace Rail {
 
     /**
      * A terminator is a component of the rail network which represents the destination of a train
+     * 
+     * This is a special case of a connector that only connects to one segment, and allows a train
+     * to end its traversal on this element of the network
      */
     class Terminator : public Connector {
         public:
@@ -120,10 +123,13 @@ namespace Rail {
         virtual ~Terminator();
 
         /**
-         *   Interface Implementations
+         *   Interface Overrides
          */
-
+        virtual void Connect(ISegment* target) override;
         virtual const IComponent* Traverse(const IComponent* src, Direction d) const override;
+
+        private:
+        ISegment* mConnectedSegment = nullptr;
     };
 
     class ComponentFactory : public IComponentFactory {

@@ -20,6 +20,7 @@ const char * const Connector::GetInfo() const {
 
 const IComponent* Connector::Traverse(const IComponent* src, Direction d) const {
     IComponent* target = nullptr;
+    // Connectors are traversed based on src component, not direction
     if(src == mSelectedSegments.first) {
         target = mSelectedSegments.second;
     } else if (src == mSelectedSegments.second) {
@@ -145,9 +146,30 @@ void Segment::Connect(IConnector* target, Direction d) {
  *  Terminator Implementation
  */
 
-const IComponent* Terminator::Traverse(const IComponent* src, Direction d) const {
-    // TODO Handle case where we are traversing in to a terminator
 
-    // The TrainSimulator needs to be notified that a Train has reached a destination
-    return nullptr;
+Terminator::Terminator(const std::string& name) : Connector(name) {
+
+}
+
+Terminator::~Terminator() {
+
+}
+
+void Terminator::Connect(ISegment* target) {
+    if(mConnectedSegment != nullptr) {
+        printf("ERROR Attempting to connect already connected Terminator");
+        return;
+    }
+
+    mConnectedSegment = target;
+}
+
+
+const IComponent* Terminator::Traverse(const IComponent* src, Direction d) const {
+    if(src != mConnectedSegment) {
+        printf("ERROR Train traversing to terminator from incorrect component");
+        return src;
+    }
+
+    return this;
 }

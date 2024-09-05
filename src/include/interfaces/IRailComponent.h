@@ -19,7 +19,6 @@ namespace Rail {
          */
         virtual const char * const GetInfo() const = 0;
 
-
         /**
          *  Get the length of the component
          */

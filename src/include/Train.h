@@ -29,6 +29,20 @@ namespace Train {
         void Conduct();
 
         /**
+         *  Gets the name of the train
+         */
+        const char * const GetName() const {
+            return mName.c_str();
+        }
+
+        /**
+         *  Gets the state of the train
+         */
+        State GetState() const {
+            return mState;
+        }
+
+        /**
          *  Reverses the direction of the train
          */
         void ReverseDirection() {
@@ -38,29 +52,43 @@ namespace Train {
         /**
          *  Gets the current segment of the train
          */
-        const Rail::IComponent* GetCurrentComponent() {
+        const Rail::IComponent* GetCurrentComponent() const {
             return mCurrentComponent;
         }
+
+        /**
+         *  Notifies the train that a collision has ocurred
+         */
+        void NotifyCollided(Train* other);
+
+        /**
+         *  Checks for a collision with another train
+         *  
+         *  @param other The other train to check against
+         *  @return true if the two trains have collided, false otherwise
+         * 
+         *  @note If a collision occurs this will update this Train and other Train states accordingly to CRASHED
+         */
+        bool CheckCollision(Train* other);
+
+        /**
+         *  Gets location of train within the current component
+         *   
+         *  @param d The direction to count from
+         *  @return The index of the train within the component in the direction d
+         */
+        unsigned int GetCurrentLocation(Rail::Direction d) const;
+
+        /**
+         *  Prints the current status of the train
+         */
+        void PrintStatus() const;
 
         /**
          *  Sets the destination of the train
          */
         void SetDestination(const Rail::IComponent* destination) {
             mDestinationComponent = destination;
-        }
-
-        /**
-         *  Gets the name of the train
-         */
-        const char * const GetName() {
-            return mName.c_str();
-        }
-
-        /**
-         *  Gets the state of the train
-         */
-        State GetState() {
-            return mState;
         }
 
         private:
@@ -70,7 +98,14 @@ namespace Train {
         const Rail::IComponent* mDestinationComponent = nullptr;
         Rail::Direction mDirection = Rail::Direction::DOWN;
 
+        // Zero-based index, representing the distance of the train in to
+        // its current component in its direction of travel
         unsigned int mSegmentIndex = 0;
+
+        // Tracked for logging metrics
+        // Total distance traveled by this train
+        unsigned int mDistanceTraveled = 0;
+        // Total time stopped for this train
         unsigned int mStoppedTime = 0;
 
         State mState = State::RUNNING;
