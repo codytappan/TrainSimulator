@@ -53,7 +53,7 @@ namespace Rail {
                 return "Disabled";
             default:
                 return "Unexpected Signal State";
-         }
+        }
     }
 }
 

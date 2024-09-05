@@ -145,8 +145,6 @@ void Segment::Connect(IConnector* target, Direction d) {
 /**
  *  Terminator Implementation
  */
-
-
 Terminator::Terminator(const std::string& name) : Connector(name) {
 
 }

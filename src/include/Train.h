@@ -91,6 +91,20 @@ namespace Train {
             mDestinationComponent = destination;
         }
 
+        // Helper function to print train state
+        static const char * const PrintState(Train::State state) {
+        switch (state) {
+            case Train::State::RUNNING:
+                return "Running";
+            case Train::State::CRASHED:
+                return "Crashed";
+            case Train::State::SUCCESS:
+                return "Success";
+            default:
+                return "Unexpected Train State";
+        }
+    }
+
         private:
 
         // Handles a case where Conduct progesses along the current component

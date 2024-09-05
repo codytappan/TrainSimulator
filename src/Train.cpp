@@ -57,7 +57,7 @@ unsigned int Train::GetCurrentLocation(Rail::Direction d) const {
 
 void Train::PrintStatus() const {
     printf("INFO Train %s: %s at %s\n", 
-            GetName(), GetState(), mCurrentComponent->GetName());
+            GetName(), PrintState(mState), mCurrentComponent->GetName());
     printf("INFO Train %s travelled: %d units\n", GetName(), mDistanceTraveled);
     printf("INFO Train %s stopped time: %d units\n\n", GetName(), mStoppedTime);
 }
@@ -71,6 +71,7 @@ void Train::handleProgressed() {
 
 // Handles the case where Conduct traverses to a new component
 void Train::handleTraversed(const Rail::IComponent* newComponent) {
+    // TODO nullcheck
     // If we have not moved components, record that we are stopped
     if(mCurrentComponent == newComponent) {
         handleStopped();
