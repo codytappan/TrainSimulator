@@ -15,32 +15,16 @@ void Train::Conduct() {
         printf("WARNING Conducting a Train that is not RUNNING");
         return;
     }
-
+    
+    // If we have not reached the end of a component simply progress by one unit
     if(mSegmentIndex < mCurrentComponent->GetLength()) {
-        // If we have not reached the end of a component simply proceed by one
-        mSegmentIndex++;
-        mDistanceTraveled++;
+        handleProgressed();
         return;
     }
 
-    // If we have reached the end of a segment, attempt to traverse to the next
+    // If we have reached the end of a segment, attempt to traverse the network
     const Rail::IComponent* nextComponent = mCurrentComponent->Traverse(mCurrentComponent, mDirection);
-
-    if(mCurrentComponent == nextComponent) {
-        // If we have not moved components, record that we are stopped
-        mStoppedTime++;
-        printf("INFO Train %s stopped on %p, direction %s", 
-            GetName(), mCurrentComponent->GetName(), Rail::PrintDirection(mDirection));
-    }
-
-    // We have moved to a new component, update and check success
-    mCurrentComponent = nextComponent;
-    mSegmentIndex = 0;
-    if (mCurrentComponent == mDestinationComponent) {
-        // If we have reached our destination, update
-        mState = State::SUCCESS;
-        printf("SUCCESS Train %s has reached its destination %s", GetName(), mDestinationComponent->GetName());
-    }
+    handleTraversed(nextComponent);
 }
 
 void Train::NotifyCollided(Train* other) {
@@ -76,6 +60,42 @@ void Train::PrintStatus() const {
             GetName(), GetState(), mCurrentComponent->GetName());
     printf("INFO Train %s travelled: %d units\n", GetName(), mDistanceTraveled);
     printf("INFO Train %s stopped time: %d units\n\n", GetName(), mStoppedTime);
+}
+
+
+// Handles a case where Conduct progesses along the current component
+void Train::handleProgressed() {
+    mSegmentIndex++;
+    mDistanceTraveled++;
+}
+
+// Handles the case where Conduct traverses to a new component
+void Train::handleTraversed(const Rail::IComponent* newComponent) {
+    // If we have not moved components, record that we are stopped
+    if(mCurrentComponent == newComponent) {
+        handleStopped();
+        return;
+    }
+
+    // We have moved to a new component, update data
+    mSegmentIndex = 0;
+    mCurrentComponent = newComponent;
+
+    // Printing every transition for debug
+    PrintStatus();
+
+    // Then we need to check if we are at our destination
+    if (mCurrentComponent == mDestinationComponent) {
+        mState = State::SUCCESS;
+        printf("SUCCESS Train %s has reached its destination %s", GetName(), mDestinationComponent->GetName());
+    }
+}
+
+// Handles the case where Conduct is called while the train is stopped
+void Train::handleStopped() {
+    mStoppedTime++;
+    printf("INFO Train %s stopped on %p, direction %s", 
+        GetName(), mCurrentComponent->GetName(), Rail::PrintDirection(mDirection));
 }
 
 } // namespace Train

@@ -25,11 +25,14 @@ namespace Rail {
         virtual unsigned int GetLength() const = 0;
 
         /**
-         *  Called when a train wants to traverse the element in the given direction
+         *  Called when a train wants to traverse to the next Component in the given direction
          * 
          *  @param src The source element from which the train is arriving
          *  @param d The direction in which we are traversing the element
          *  @return const IComponent* A pointer to the element we end on after traversing
+         * 
+         *  @note If the Traverse is blocked the src component will be returned to indicate
+         *        no traversal ocurred
          */
         virtual const IComponent* Traverse(const IComponent* src, Direction d) const = 0;
     };
