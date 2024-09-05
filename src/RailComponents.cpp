@@ -14,16 +14,13 @@ Connector::~Connector() {
 
 }
 
-std::string Connector::GetName() {
-    return mName;
-}
-
-std::string Connector::GetInfo() {
+const char * const Connector::GetInfo() const {
     return "";
 }
 
-const IComponent* Connector::Traverse(const IComponent* src, Direction d) {
+const IComponent* Connector::Traverse(const IComponent* src, Direction d) const {
     IComponent* target = nullptr;
+    // Connectors are traversed based on src component, not direction
     if(src == mSelectedSegments.first) {
         target = mSelectedSegments.second;
     } else if (src == mSelectedSegments.second) {
@@ -105,7 +102,7 @@ void Segment::AddSignal(Direction d) {
     mSignalMap.at(d) = s;
 }
 
-SignalState Segment::GetSignalState(Direction d) {
+SignalState Segment::GetSignalState(Direction d) const {
     if(mSignalMap.find(d) == mSignalMap.end()) {
         return SignalState::DISABLED;
     }
@@ -122,15 +119,11 @@ void Segment::SetSignalState(SignalState state, Direction d) {
     mSignalMap.at(d).SetState(state);
 }
 
-std::string Segment::GetName() {
-    return mName;
-}
-
-std::string Segment::GetInfo() {
+const char * const Segment::GetInfo() const {
     return "";
 }
 
-const IComponent* Segment::Traverse(const IComponent* src, Direction d) {
+const IComponent* Segment::Traverse(const IComponent* src, Direction d) const {
     // Check the signal in the departing direction
     if(GetSignalState(d) == SignalState::RED) {
         printf("WARNING Train stopped at red light");
@@ -152,10 +145,29 @@ void Segment::Connect(IConnector* target, Direction d) {
 /**
  *  Terminator Implementation
  */
+Terminator::Terminator(const std::string& name) : Connector(name) {
 
-const IComponent* Terminator::Traverse(const IComponent* src, Direction d) {
-    // TODO Handle case where we are traversing in to a terminator
+}
 
-    // The TrainSimulator needs to be notified that a Train has reached a destination
-    return nullptr;
+Terminator::~Terminator() {
+
+}
+
+void Terminator::Connect(ISegment* target) {
+    if(mConnectedSegment != nullptr) {
+        printf("ERROR Attempting to connect already connected Terminator");
+        return;
+    }
+
+    mConnectedSegment = target;
+}
+
+
+const IComponent* Terminator::Traverse(const IComponent* src, Direction d) const {
+    if(src != mConnectedSegment) {
+        printf("ERROR Train traversing to terminator from incorrect component");
+        return src;
+    }
+
+    return this;
 }

@@ -51,7 +51,7 @@ namespace Rail {
         /**
          *  Create a terminator and attach it to an existing segment, in the given direction
          */
-        void AddTerminator(ISegment* src, Direction d);
+        IConnector* AddTerminator(ISegment* src, Direction d);
 
         /**
          *  Network Traversal API

@@ -11,7 +11,7 @@ namespace Traffic {
         virtual ~DjikstraController();
 
         // ITrafficController
-        virtual void SetOptimalPath(Rail::IComponent* src, Rail::IComponent* dst);
+        virtual void UpdateRailNetwork(Rail::RailNetwork& network, const std::vector<Train::Train *>& trains);
     };
 
 }
