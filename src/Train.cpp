@@ -25,8 +25,7 @@ void Train::Conduct() {
     }
 
     // If we have reached the end of a segment, attempt to traverse the network
-    const Rail::IComponent* nextComponent = mCurrentComponent->Traverse(mCurrentComponent, mDirection);
-    handleTraversed(nextComponent);
+    handleTraversed();
 }
 
 void Train::NotifyCollided(Train* other) {
@@ -72,8 +71,9 @@ void Train::handleProgressed() {
 }
 
 // Handles the case where Conduct traverses to a new component
-void Train::handleTraversed(const Rail::IComponent* newComponent) {
-    // TODO nullcheck
+void Train::handleTraversed() {
+    const Rail::IComponent* newComponent = mCurrentComponent->Traverse(mCurrentComponent, mDirection);
+
     // If we have not moved components, record that we are stopped
     if(mCurrentComponent == newComponent) {
         handleStopped();

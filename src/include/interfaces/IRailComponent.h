@@ -89,7 +89,7 @@ namespace Rail {
     class IConnector : public IComponent {
         public:
         /**
-         *  Called to get the next segments(s), ignoring traversal rules
+         *  Get the next segments(s), ignoring traversal rules
          *
          *  @param d The direction in which we are traversing the element
          *  @return src The source segment we are looking from
@@ -97,20 +97,20 @@ namespace Rail {
         virtual std::set<const ISegment*> GetNext(const ISegment *src) = 0;
 
         /**
-         *  Called to connect to a segment in the network
+         *  Connect to a segment
          *  @param target The Segment to connect to
          */
         virtual void Connect(ISegment* target) = 0;
 
         /**
-         *  Called to select connected segments in a connector
+         *  Select connected segments in a connector
          *  @param s1, s2  The segments to connect, which will be traversed when traveling across the connector
          *  @return true if the elements could be routed, false otherwise
          */
         virtual bool Select(const ISegment* s1, const ISegment* s2) = 0;
 
         /**
-         *  Called to fix a segment in a connector. The connector must always connect to this segment
+         *  Fix a segment in a connector. The connector must always connect to this segment
          */
         virtual void Fix(ISegment* target) = 0;
     };

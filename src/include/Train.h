@@ -121,13 +121,9 @@ namespace Train {
 
         private:
 
-        // Handles a case where Conduct progesses along the current component
+        // Helper functions to handle state transitions
         void handleProgressed();
-
-        // Handles the case where Conduct traverses to a new component
-        void handleTraversed(const Rail::IComponent* newComponent);
-
-        // Handles the case where Conduct is called while the train is stopped
+        void handleTraversed();
         void handleStopped();
 
         const std::string mName = "DefaultTrainName";
