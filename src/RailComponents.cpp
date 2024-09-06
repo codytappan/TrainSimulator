@@ -37,15 +37,15 @@ const IComponent* Connector::Traverse(const IComponent* src, Direction d) const 
     return target;
 }
 
-std::set<ISegment*> Connector::GetNext(ISegment* src) {
+std::set<const ISegment*> Connector::GetNext(const ISegment* src) {
     if(mAvailableSegments.find(src) == mAvailableSegments.end()) {
         // Available segments does not contain src
         printf("ERROR GetNext on connector with invalid source segment\n");
-        return std::set<ISegment*>();
+        return std::set<const ISegment*>();
     }
 
     // Return a subset of available connectors, without src
-    std::set<ISegment*> ret = mAvailableSegments;
+    std::set<const ISegment*> ret = mAvailableSegments;
     ret.erase(src);
     
     return ret;
@@ -91,14 +91,13 @@ void Connector::Fix(ISegment* src) {
  */
 Segment::Segment(const std::string& name, unsigned int length) : 
     mName(name), mLength(length) {
-    printf("DEBUG Segment %s created\n", GetName());
-}
 
-Segment::Segment(unsigned int length) : Segment("DefaultSegmentName", length) {
     mConnectorMap[Direction::UP] = nullptr;
     mConnectorMap[Direction::DOWN] = nullptr;
     mSignalMap[Direction::UP] = Rail::Signal();
     mSignalMap[Direction::DOWN] = Rail::Signal();
+
+    printf("DEBUG Segment %s created\n", GetName());
 }
 
 Segment::~Segment() {
@@ -143,8 +142,8 @@ const IComponent* Segment::Traverse(const IComponent* src, Direction d) const {
     return mConnectorMap.at(d)->Traverse(src, d);
 }
 
-IConnector* Segment::GetNext(Direction d) {
-    return mConnectorMap[d];
+IConnector* Segment::GetNext(Direction d) const {
+    return mConnectorMap.at(d);
 }
 
 void Segment::Connect(IConnector* target, Direction d) {

@@ -74,7 +74,7 @@ namespace Rail {
          *  @param d The direction in which we are traversing the element
          *  @return A pointer to the connector in the given direction on this segment, or nullptr if not connected
          */
-        virtual IConnector* GetNext(Direction d) = 0;
+        virtual IConnector* GetNext(Direction d) const = 0;
     
         /**
          *  Called to connect to a connector in the network
@@ -94,7 +94,7 @@ namespace Rail {
          *  @param d The direction in which we are traversing the element
          *  @return src The source segment we are looking from
          */
-        virtual std::set<ISegment*> GetNext(ISegment *src) = 0;
+        virtual std::set<const ISegment*> GetNext(const ISegment *src) = 0;
 
         /**
          *  Called to connect to a segment in the network

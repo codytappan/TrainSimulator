@@ -7,7 +7,6 @@
 #include <set>
 #include <map>
 
-
 namespace Rail {
     /**
      * A signal is a component of the rail network which tells trains whether or not they can proceed across
@@ -58,7 +57,7 @@ namespace Rail {
         virtual const IComponent* Traverse(const IComponent* src, Direction d) const;
 
         // IConnector
-        virtual std::set<ISegment*> GetNext(ISegment* src);
+        virtual std::set<const ISegment*> GetNext(const ISegment* src);
         virtual void Connect(ISegment* target);
         virtual void Select(ISegment* s1, ISegment* s2);
         virtual void Fix(ISegment* src);
@@ -66,7 +65,7 @@ namespace Rail {
         private:
         std::string mName = "";
 
-        std::set<ISegment*> mAvailableSegments;
+        std::set<const ISegment*> mAvailableSegments;
         std::pair<ISegment*, ISegment*> mSelectedSegments;
     };
 
@@ -75,7 +74,6 @@ namespace Rail {
      */
     class Segment : public ISegment {
         public:
-        Segment(unsigned int length);
         Segment(const std::string& name, unsigned int length);
         virtual ~Segment();
 
@@ -100,7 +98,7 @@ namespace Rail {
         virtual void AddSignal(Direction d);
         virtual SignalState GetSignalState(Direction d) const;
         virtual void SetSignalState(SignalState state, Direction d);
-        virtual IConnector* GetNext(Direction d);
+        virtual IConnector* GetNext(Direction d) const;
         virtual void Connect(IConnector* target, Direction d);
 
         private:

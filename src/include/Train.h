@@ -85,10 +85,24 @@ namespace Train {
         void PrintStatus() const;
 
         /**
+         *  Gets the destination of the train
+         */
+        const Rail::IComponent* GetDestination() const {
+            return mDestinationComponent;
+        }
+
+        /**
          *  Sets the destination of the train
          */
         void SetDestination(const Rail::IComponent* destination) {
             mDestinationComponent = destination;
+        }
+
+        /**
+         *  Gets the direction of the train
+         */
+        Rail::Direction GetDirection() const {
+            return mDirection;
         }
 
         // Helper function to print train state
