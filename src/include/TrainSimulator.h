@@ -6,7 +6,6 @@
 #include "interfaces/ITrafficController.h"
 
 namespace Train {
-
     class Simulator {
         public:
         Simulator();
@@ -54,7 +53,6 @@ namespace Train {
         std::vector<Train*> mRunningTrains;
         std::vector<Train*> mFinishedTrains;
     };
-
 }
 
 #endif

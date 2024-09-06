@@ -116,7 +116,7 @@ namespace Train {
         // Handles the case where Conduct is called while the train is stopped
         void handleStopped();
 
-        const std::string& mName = "DefaultTrainName";
+        const std::string mName = "DefaultTrainName";
 
         const Rail::IComponent* mCurrentComponent = nullptr;
         const Rail::IComponent* mDestinationComponent = nullptr;

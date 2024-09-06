@@ -6,6 +6,8 @@ Train::Train(const std::string& name, const Rail::IComponent *startingComponent,
     mName(name), mCurrentComponent(startingComponent), mDirection(direction)
 {
     // TODO Null check
+    printf("INFO Train %s created, starting on segment %s in direction %s\n",
+            GetName(), startingComponent->GetName(), Rail::PrintDirection(direction));
 }
 
 Train::~Train() {}
@@ -58,8 +60,8 @@ unsigned int Train::GetCurrentLocation(Rail::Direction d) const {
 void Train::PrintStatus() const {
     printf("INFO Train %s: %s at %s\n", 
             GetName(), PrintState(mState), mCurrentComponent->GetName());
-    printf("INFO Train %s travelled: %d units\n", GetName(), mDistanceTraveled);
-    printf("INFO Train %s stopped time: %d units\n\n", GetName(), mStoppedTime);
+    printf("INFO Train %s: travelled: %d units\n", GetName(), mDistanceTraveled);
+    printf("INFO Train %s: stopped time: %d units\n\n", GetName(), mStoppedTime);
 }
 
 
@@ -83,20 +85,22 @@ void Train::handleTraversed(const Rail::IComponent* newComponent) {
     mCurrentComponent = newComponent;
 
     // Printing every transition for debug
+    printf("INFO Train %s traversing to new component\n", GetName());
     PrintStatus();
 
     // Then we need to check if we are at our destination
     if (mCurrentComponent == mDestinationComponent) {
         mState = State::SUCCESS;
-        printf("SUCCESS Train %s has reached its destination %s", GetName(), mDestinationComponent->GetName());
+        printf("SUCCESS Train %s has reached its destination %s\n", 
+                GetName(), mDestinationComponent->GetName());
     }
 }
 
 // Handles the case where Conduct is called while the train is stopped
 void Train::handleStopped() {
     mStoppedTime++;
-    printf("INFO Train %s stopped on %p, direction %s", 
-        GetName(), mCurrentComponent->GetName(), Rail::PrintDirection(mDirection));
+    printf("INFO Train %s stopped on %s, direction %s\n", 
+            GetName(), mCurrentComponent->GetName(), Rail::PrintDirection(mDirection));
 }
 
 } // namespace Train

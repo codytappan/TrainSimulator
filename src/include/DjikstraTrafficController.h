@@ -7,11 +7,11 @@ namespace Traffic {
     
     class DjikstraController : public ITrafficController {
         public:
-        DjikstraController();
-        virtual ~DjikstraController();
+        DjikstraController() {}
+        virtual ~DjikstraController() {}
 
         // ITrafficController
-        virtual void UpdateRailNetwork(Rail::RailNetwork& network, const std::vector<Train::Train *>& trains);
+        virtual void UpdateRailNetwork(Rail::RailNetwork& network, const std::vector<Train::Train *>& trains) {}
     };
 
 }

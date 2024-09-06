@@ -8,7 +8,7 @@
 namespace Rail {
     class RailNetwork {
         public:
-        RailNetwork(const IComponentFactory& f);
+        RailNetwork(const IComponentFactory* f);
         virtual ~RailNetwork();
 
         /**
@@ -17,21 +17,23 @@ namespace Rail {
 
         /**
          *  Create a new, unconnected Segment within the network
-         * 
+         *  
+         *  @param name The name of the new segment
          *  @param length The legnth of segment to create.
          *  @return A handle to the new segment
          */
-        ISegment* CreateSegment(unsigned int legnth);
+        ISegment* CreateSegment(const std::string& name, unsigned int legnth);
 
         /**
          *  Create a segment and attach it to an existing segment, in the given direction
          * 
          *  @param src The existing segment to connect to.
          *  @param d The side of the existing segment to connect to.
+         *  @param name The name of the new segment
          *  @param length The legnth of segment to create.
          *  @return A handle to the new segment
          */
-        ISegment* AttachSegment(ISegment* src, Direction d, unsigned int length);
+        ISegment* AttachSegment(ISegment* src, Direction d, const std::string& name, unsigned int length);
 
         /**
          *  Connect two existing segments within the network
@@ -51,7 +53,7 @@ namespace Rail {
         /**
          *  Create a terminator and attach it to an existing segment, in the given direction
          */
-        IConnector* AddTerminator(ISegment* src, Direction d);
+        IConnector* AddTerminator(ISegment* src, Direction d, const std::string& name);
 
         /**
          *  Network Traversal API
@@ -68,7 +70,7 @@ namespace Rail {
         void SetSignal(ISegment* segment, Direction d, SignalState state);
 
         private:
-        const IComponentFactory& mComponentFactory;
+        const IComponentFactory* mComponentFactory;
 
         std::vector<ISegment*> mSegments;
         std::vector<IConnector*> mConnectors;

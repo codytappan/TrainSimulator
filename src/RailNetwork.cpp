@@ -2,7 +2,7 @@
 
 using namespace Rail;
 
-RailNetwork::RailNetwork(const IComponentFactory& f) :
+RailNetwork::RailNetwork(const IComponentFactory* f) :
     mComponentFactory(f), mSegments(), mConnectors(), mTerminators()
 {
 
@@ -23,15 +23,15 @@ RailNetwork::~RailNetwork() {
     }
 }
 
-ISegment* RailNetwork::CreateSegment(unsigned int length) {
-    ISegment *segment = mComponentFactory.NewSegment("DefaultSegmentName", length);
+ISegment* RailNetwork::CreateSegment(const std::string& name, unsigned int length) {
+    ISegment *segment = mComponentFactory->NewSegment(name, length);
     mSegments.push_back(segment);
 
     return segment;
 }
 
-ISegment* RailNetwork::AttachSegment(ISegment* src, Direction d, unsigned int length) {
-    ISegment *segment = CreateSegment(length);
+ISegment* RailNetwork::AttachSegment(ISegment* src, Direction d, const std::string& name, unsigned int length) {
+    ISegment *segment = CreateSegment(name, length);
 
     // Where possible we connect segments UP<->DOWN sides to ease logic of traversing network
     ConnectSegments(src, d, segment, ReverseDirection(d));
@@ -53,7 +53,7 @@ void RailNetwork::ConnectSegments(ISegment* s1, Direction d1, ISegment* s2, Dire
 
     if( c1 == nullptr && c2 == nullptr) {
         // If neither segment is connected we need to create a new connector for this op
-        target = mComponentFactory.NewConnector("DefaultConnectorName");
+        target = mComponentFactory->NewConnector("DefaultConnectorName");
         mConnectors.push_back(target);
     } else {
         // Target the existing connector
@@ -106,14 +106,15 @@ void RailNetwork::SetSignal(ISegment* segment, Direction d, SignalState state) {
     segment->SetSignalState(state, d);
 }
 
-IConnector* RailNetwork::AddTerminator(ISegment* src, Direction d) {
+IConnector* RailNetwork::AddTerminator(ISegment* src, Direction d, const std::string& name) {
     if(src->GetNext(d) != nullptr) {
         printf("ERROR Connecting terminator to connected segment");
         return nullptr;
     }
 
-    IConnector* terminator = mComponentFactory.NewTerminator("DefaultTerminatorName");
+    IConnector* terminator = mComponentFactory->NewTerminator(name);
     src->Connect(terminator, d);
+    terminator->Connect(src);
 
     // Save the new terminator
     mTerminators.push_back(terminator);

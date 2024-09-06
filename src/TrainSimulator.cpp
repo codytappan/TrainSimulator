@@ -1,13 +1,17 @@
 #include "TrainSimulator.h"
+#include "DjikstraTrafficController.h"
+#include "RailNetwork.h"
 
 using namespace Train;
 
 Simulator::Simulator() {
-    mRailNetwork = new Rail::RailNetwork(Rail::ComponentFactory());
+    mRailNetwork = new Rail::RailNetwork(new Rail::ComponentFactory());
+    mTrafficController = new Traffic::DjikstraController();
 }
 
 Simulator::~Simulator() {
-
+    free(mRailNetwork);
+    free(mTrafficController);
 }
 
 /**
@@ -17,22 +21,24 @@ void Simulator::Build() {
     // For now make a simple test Network. We'll add user input later
 
     // TermA --> SegA 20 --> SegB 20 --> SegC 10 --> TermB
-    //                   |-> SegD 10 -^ 
-    auto segA = mRailNetwork->CreateSegment(20);
-    auto segB = mRailNetwork->AttachSegment(segA, Rail::Direction::UP, 20);
-    auto segC = mRailNetwork->AttachSegment(segB, Rail::Direction::UP, 10);
-    auto segD = mRailNetwork->AttachSegment(segA, Rail::Direction::UP, 10);
+    //                   \-- SegD 10 --/ 
+    auto segA = mRailNetwork->CreateSegment("SegA", 20);
+    auto segB = mRailNetwork->AttachSegment(segA, Rail::Direction::UP, "SegB", 20);
+    auto segC = mRailNetwork->AttachSegment(segB, Rail::Direction::UP, "SegC", 10);
+    auto segD = mRailNetwork->AttachSegment(segA, Rail::Direction::UP, "SegD", 10);
 
     // Connect segD up to segC down
     mRailNetwork->ConnectSegments(segD, Rail::Direction::UP, segC, Rail::Direction::DOWN);
 
     // Terminate Network
-    auto termA = mRailNetwork->AddTerminator(segA, Rail::Direction::DOWN);
-    auto termB = mRailNetwork->AddTerminator(segC, Rail::Direction::UP);
+    auto termA = mRailNetwork->AddTerminator(segA, Rail::Direction::DOWN, "TermA");
+    auto termB = mRailNetwork->AddTerminator(segC, Rail::Direction::UP, "TermB");
 
     // Add a train to the network
-    Train testTrain("TestTrain", segA, Rail::Direction::UP);
-    testTrain.SetDestination(termB);
+    Train* testTrain = new Train("TestTrain", segA, Rail::Direction::UP);
+    testTrain->SetDestination(termB);
+
+    mRunningTrains.push_back(testTrain);
 }
 
 /**
@@ -105,7 +111,7 @@ void Simulator::removeFinishedTrains() {
     for(auto iter = mRunningTrains.begin(); iter != mRunningTrains.end(); ) {
         if((*iter)->GetState() != Train::State::RUNNING) {
             // Find any trains that are not RUNNING
-            printf("INFO Removing Train %s from simulation", (*iter)->GetName());
+            printf("INFO Removing Train %s from simulation\n", (*iter)->GetName());
 
             // and move them to finished trains
             mFinishedTrains.push_back(*iter);
