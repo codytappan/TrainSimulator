@@ -76,13 +76,22 @@ void RailNetwork::ConnectSegments(ISegment* s1, Direction d1, ISegment* s2, Dire
 /**
  *  Switch the connector between the given segments so that trains traverse from src to dst
  */
-void RailNetwork::RouteSegment(ISegment* src, ISegment* dst) {
-    // TODO this can be improved by testing the result of Select on the upConnector and only switching the DOWN if needed
+bool RailNetwork::RouteSegment(const ISegment* src, const ISegment* dst) {
+    // Attempt the up facing connection first
     IConnector* upConnector = src->GetNext(Direction::UP);
-    upConnector->Select(src, dst);
+    if(upConnector->Select(src, dst)) {
+        return true;
+    }
 
+    // If that failed, we may be routing down
     IConnector* downConnector = src->GetNext(Direction::DOWN);
-    downConnector->Select(src, dst);
+    if(downConnector->Select(src, dst)) {
+        return true;
+    }
+
+    printf("WARNING Failed to route segments %s and %s\n",
+            src->GetName(), dst->GetName());
+    return false;
 }
 
 void RailNetwork::AddSignal(ISegment* segment, Direction d, SignalState state) {

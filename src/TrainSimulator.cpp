@@ -20,11 +20,19 @@ Simulator::~Simulator() {
 void Simulator::Build() {
     // For now make a simple test Network. We'll add user input later
 
-    // TermA --> SegA 20 --> SegB 20 --> SegC 10 --> TermB
+    //Djikstra notes
+    // Explore order should be
+    // A
+    // D
+    // C
+    // B
+    // Success Path = A - D - C
+
+    // TermA --> SegA 20 --> SegB 20 --> SegC 30 --> TermB
     //                   \-- SegD 10 --/ 
     auto segA = mRailNetwork->CreateSegment("SegA", 20);
     auto segB = mRailNetwork->AttachSegment(segA, Rail::Direction::UP, "SegB", 20);
-    auto segC = mRailNetwork->AttachSegment(segB, Rail::Direction::UP, "SegC", 10);
+    auto segC = mRailNetwork->AttachSegment(segB, Rail::Direction::UP, "SegC", 30);
     auto segD = mRailNetwork->AttachSegment(segA, Rail::Direction::UP, "SegD", 10);
 
     // Connect segD up to segC down

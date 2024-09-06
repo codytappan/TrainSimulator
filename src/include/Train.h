@@ -85,10 +85,24 @@ namespace Train {
         void PrintStatus() const;
 
         /**
+         *  Gets the destination of the train
+         */
+        const Rail::IComponent* GetDestination() const {
+            return mDestinationComponent;
+        }
+
+        /**
          *  Sets the destination of the train
          */
         void SetDestination(const Rail::IComponent* destination) {
             mDestinationComponent = destination;
+        }
+
+        /**
+         *  Gets the direction of the train
+         */
+        Rail::Direction GetDirection() const {
+            return mDirection;
         }
 
         // Helper function to print train state
@@ -107,13 +121,9 @@ namespace Train {
 
         private:
 
-        // Handles a case where Conduct progesses along the current component
+        // Helper functions to handle state transitions
         void handleProgressed();
-
-        // Handles the case where Conduct traverses to a new component
-        void handleTraversed(const Rail::IComponent* newComponent);
-
-        // Handles the case where Conduct is called while the train is stopped
+        void handleTraversed();
         void handleStopped();
 
         const std::string mName = "DefaultTrainName";
