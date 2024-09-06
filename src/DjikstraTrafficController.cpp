@@ -13,22 +13,8 @@ DjikstraController::~DjikstraController() {
 }
 
 void DjikstraController::UpdateRailNetwork(Rail::RailNetwork& network, const std::vector<Train::Train *>& trains) {
-    // For each train, find and set the shortest path
     for(auto train : trains) {
-        // Only find the shortest path once for each train
-        Path shortestPath;
-        if(mShortestPaths.count(train) == 0) {
-            shortestPath = findShortestPath(train);
-            if (!shortestPath.empty()) {
-                mShortestPaths[train] = shortestPath;
-            }
-        } else {
-            shortestPath = mShortestPaths.at(train);
-        }
-
-        // If we can appropriately set the path for one train, return
-        // We can extend this with multi-train optimizations at a later date
-        if(setPath(network, shortestPath)) {
+        if(setPath(network, getPath(train))) {
             return;
         } else {
             printf("WARNING Failed to set optimal path for train %s\n", train->GetName());
@@ -36,82 +22,77 @@ void DjikstraController::UpdateRailNetwork(Rail::RailNetwork& network, const std
     }
 }
 
-DjikstraController::Path DjikstraController::findShortestPath(Train::Train* train) {
-    using Path = DjikstraController::Path;
-    typedef struct {
-        unsigned int distance = UINT32_MAX;
-        Path path;
-        Rail::IConnector* vertex = nullptr;
-    } PriorityPath;
 
-    using CompareFn = std::function<bool(PriorityPath, PriorityPath)>;
-    CompareFn compare (
-        [](PriorityPath below, PriorityPath above) -> bool {
-            return below.distance > above.distance;
-        }
-    );
+Path DjikstraController::getPath(Train::Train* train) {
+    // Check if we have a cached path for this train
+    if(mShortestPaths.count(train)) {
+        return mShortestPaths.at(train);
+    }
 
+    Path shortestPath = findShortestPath(train);
+    if(!shortestPath.empty()) {
+        mShortestPaths[train] = shortestPath;
+    } else {
+        printf("WARNING Could not find shortest path for Train %s\n", train->GetName());
+    }
+
+    return shortestPath;
+}
+
+Path DjikstraController::findShortestPath(Train::Train* train) {
+    // For Djikstras we track a map of visited nodes, and a priority queue of routes to explore
     std::map<Rail::IConnector*, unsigned int> visitedNodes;
+    std::priority_queue<PriorityPath, std::vector<PriorityPath>, PriorityPath::CompareFn> priorityPathQueue(PriorityPath::Compare);
+    
+    // Initialize the visited nodes list and priority queue with 
+    // the starting data based off the train's location
+    auto initialSegment = dynamic_cast<const Rail::ISegment*>(train->GetCurrentComponent());
 
-    std::priority_queue<PriorityPath, std::vector<PriorityPath>, CompareFn> pathsQueue(compare);
+    unsigned int currentDistance = train->GetCurrentComponent()->GetLength();
+    Path currentPath = Path {initialSegment};
+    Rail::IConnector* currentVertex = initialSegment->GetNext(train->GetDirection());
 
-    auto sourceSeg = dynamic_cast<const Rail::ISegment*>(train->GetCurrentComponent());
+    visitedNodes[currentVertex] = currentDistance;
+    priorityPathQueue.push(PriorityPath(currentDistance, currentPath, currentVertex));
 
-    // Push the starting Node in to the priority queue
-    // The initial cost is the length of the starting segment
-    PriorityPath initialPath {
-        .distance = train->GetCurrentComponent()->GetLength(),
-        .path =  Path(),
-        .vertex = sourceSeg->GetNext(train->GetDirection()),
-    };
-
-    initialPath.path.push_back(sourceSeg);
-    visitedNodes[initialPath.vertex] = initialPath.distance;
-
-    pathsQueue.push(initialPath);
-
-    while(!pathsQueue.empty()) {
+    // Now begin iterating through the priority queue of routes to explore
+    while(!priorityPathQueue.empty()) {
         // Pop the top of the queue
-        PriorityPath next = pathsQueue.top();
-        pathsQueue.pop();
+        PriorityPath next = priorityPathQueue.top();
+        priorityPathQueue.pop();
 
-        // If we have the destination at the top of our queue, we have found the shortest path
-        if(next.vertex == train->GetDestination()) {
+        // If we have our destination at the top of our queue, we have found the shortest path
+        if(next.GetVertex() == train->GetDestination()) {
             printf("INFO Path found for Train %s\n", train->GetName());
-            return next.path;
+            return next.GetPath();
         }
 
-        // Otherwise we loop over all the next segments and add new Paths for them
-        printf("INFO Exploring from %s for Train %s\n", next.path.back()->GetName(), train->GetName());
+        // Otherwise loop over all the next segments and add new Paths for them
+        printf("INFO Exploring from %s for Train %s\n", next.GetPath().back()->GetName(), train->GetName());
 
-        auto nextSegments = next.vertex->GetNext(next.path.back());
-        for(auto& exploredSeg : nextSegments) {
-            auto exploredDistance = next.distance + exploredSeg->GetLength();
-
-            auto exploredPath = next.path;
-            exploredPath.push_back(exploredSeg);
-
-            auto exploredVertex = exploredSeg->GetNext(train->GetDirection());
+        auto nextSegments = next.GetVertex()->GetNext(next.GetPath().back());
+        for(auto& exploring : nextSegments) {
+            // Update the current info according to the explored segment
+            currentDistance = next.GetDistance() + exploring->GetLength();
+            currentPath = next.GetPath();
+            currentPath.push_back(exploring);
+            currentVertex = exploring->GetNext(train->GetDirection());
 
             // Add the explored vertex to our visited nodes if it has not been found
-            if(!visitedNodes.count(exploredVertex)) {
-                visitedNodes[exploredVertex] = UINT32_MAX;
+            if(!visitedNodes.count(currentVertex)) {
+                visitedNodes[currentVertex] = UINT32_MAX;
             }
-
-            PriorityPath newPath {
-                .distance = exploredDistance,
-                .path = exploredPath,
-                .vertex = exploredVertex
-            };
 
             // If this vertex is in the set of visited nodes
             // and the newly explored distance is longer  we don't need to add this new path
-            if(exploredDistance < visitedNodes[exploredVertex]) {
-                pathsQueue.push(newPath);
-                visitedNodes[exploredVertex] = exploredDistance;
-                printf("INFO Found a shorter path to %s for Train %s\n", exploredVertex->GetName(), train->GetName());
+            if(currentDistance < visitedNodes[currentVertex]) {
+                priorityPathQueue.push(PriorityPath(currentDistance, currentPath, currentVertex));
+                visitedNodes[currentVertex] = currentDistance;
+                printf("INFO Found a shorter path to %s for Train %s\n", 
+                        currentVertex->GetName(), train->GetName());
             } else {
-                printf("INFO We already have a shorter path to %s for Train %s\n", exploredVertex->GetName(), train->GetName());
+                printf("INFO We already have a shorter path to %s for Train %s\n", 
+                        currentVertex->GetName(), train->GetName());
             }
         }
     }
@@ -121,7 +102,7 @@ DjikstraController::Path DjikstraController::findShortestPath(Train::Train* trai
     return Path();
 }
 
-bool DjikstraController::setPath(Rail::RailNetwork& network, DjikstraController::Path path) {
+bool DjikstraController::setPath(Rail::RailNetwork& network, Path path) {
     bool success = true;
     // Path is a series of Segments that need to be connected, iterate through and route each to the next
     for(int i = 0; i < path.size() - 1; i++) {
