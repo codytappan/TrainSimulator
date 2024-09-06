@@ -14,19 +14,8 @@ Simulator::~Simulator() {
     free(mTrafficController);
 }
 
-/**
- *  Build a rail network and populate it with trains
- */
-void Simulator::Build() {
+void Simulator::RunSimpleNetworkTest() {
     // For now make a simple test Network. We'll add user input later
-
-    //Djikstra notes
-    // Explore order should be
-    // A
-    // D
-    // C
-    // B
-    // Success Path = A - D - C
 
     // TermA --> SegA 20 --> SegB 20 --> SegC 30 --> TermB
     //                   \-- SegD 10 --/ 
@@ -47,6 +36,43 @@ void Simulator::Build() {
     testTrain->SetDestination(termB);
 
     mRunningTrains.push_back(testTrain);
+
+    Run();
+    ValidateResults();
+}
+
+
+void Simulator::RunCollisionTest() {
+    // For now make a simple test Network. We'll add user input later
+
+    // TermA --> SegA 20 --> SegB 20 --> SegC 30 --> TermB
+    auto segA = mRailNetwork->CreateSegment("SegA", 20);
+    auto segB = mRailNetwork->AttachSegment(segA, Rail::Direction::UP, "SegB", 20);
+    auto segC = mRailNetwork->AttachSegment(segB, Rail::Direction::UP, "SegC", 30);
+
+    // Terminate Network
+    auto termA = mRailNetwork->AddTerminator(segA, Rail::Direction::DOWN, "TermA");
+    auto termB = mRailNetwork->AddTerminator(segC, Rail::Direction::UP, "TermB");
+
+    // Add a train to the network
+    Train* testTrain = new Train("TestTrain", segA, Rail::Direction::UP);
+    testTrain->SetDestination(termB);
+    mRunningTrains.push_back(testTrain);
+
+    // And one that will crash with the first
+    Train* crashTrain = new Train("CrashTrain", segC, Rail::Direction::DOWN);
+    crashTrain->SetDestination(termA);
+    mRunningTrains.push_back(crashTrain);
+
+    Run();
+    ValidateResults();
+}
+
+/**
+ *  Build a rail network and populate it with trains
+ */
+void Simulator::Build() {
+    // TODO this should be populated with methods for user input
 }
 
 /**
@@ -60,13 +86,18 @@ void Simulator::Run() {
 
         // Conduct each train forward
         for(auto train: mRunningTrains) {
+            // Because we do not remove trains until each has been updated,
+            // A crashed train can still be in the queue
+            if(train->GetState() != Train::State::RUNNING) {
+                continue;
+            }
+
             train->Conduct();
 
-            if(checkTrainCollision(train)) {
-                // A train has crashed!
-            } else if (checkTrainSucceeded(train)) {
-                // A train has made it to the end!
-            }
+            // Check for state updates, but wait until each train has been
+            // Conducted before we remove them
+            checkTrainCollision(train);
+            checkTrainSucceeded(train);
         }
 
         // Remove any trains that have finished their simulation

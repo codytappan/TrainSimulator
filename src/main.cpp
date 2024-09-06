@@ -10,9 +10,8 @@ int main(int argc, char **argv) {
     // Test a network where collision happens
     // Run a large network
 
-    simulator.Build();
-    simulator.Run();
-    simulator.ValidateResults();
+    simulator.RunSimpleNetworkTest();
+    simulator.RunCollisionTest();
 
     return 0;
 }

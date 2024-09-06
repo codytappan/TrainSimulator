@@ -26,6 +26,12 @@ namespace Train {
          */
         bool ValidateResults();
 
+        /** 
+         *  Temporary Helper functions to run some basic test cases
+         */
+        void RunSimpleNetworkTest();
+        void RunCollisionTest();
+
         private:
         /**
          *  Checks to see if the train has collided with any other trains

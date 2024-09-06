@@ -30,7 +30,7 @@ void Train::Conduct() {
 
 void Train::NotifyCollided(Train* other) {
     //TODO null check
-    printf("ERROR Train %s collided with %s on component %s", GetName(), other->GetName(), mCurrentComponent->GetName());
+    printf("ERROR Train %s collided with %s on component %s\n", GetName(), other->GetName(), mCurrentComponent->GetName());
     mState = State::CRASHED;
 }
 
