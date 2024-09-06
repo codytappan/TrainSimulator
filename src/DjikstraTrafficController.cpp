@@ -29,7 +29,6 @@ void DjikstraController::UpdateRailNetwork(Rail::RailNetwork& network, const std
         // If we can appropriately set the path for one train, return
         // We can extend this with multi-train optimizations at a later date
         if(setPath(network, shortestPath)) {
-            printf("INFO Optimal path set for train %s\n", train->GetName());
             return;
         } else {
             printf("WARNING Failed to set optimal path for train %s\n", train->GetName());
@@ -106,8 +105,7 @@ DjikstraController::Path DjikstraController::findShortestPath(Train::Train* trai
             };
 
             // If this vertex is in the set of visited nodes
-            // and this distance is longer
-            // we don't need to add this new path
+            // and the newly explored distance is longer  we don't need to add this new path
             if(exploredDistance < visitedNodes[exploredVertex]) {
                 pathsQueue.push(newPath);
                 visitedNodes[exploredVertex] = exploredDistance;
@@ -125,6 +123,10 @@ DjikstraController::Path DjikstraController::findShortestPath(Train::Train* trai
 
 bool DjikstraController::setPath(Rail::RailNetwork& network, DjikstraController::Path path) {
     bool success = true;
+    // Path is a series of Segments that need to be connected, iterate through and route each to the next
+    for(int i = 0; i < path.size() - 1; i++) {
+        success = success && (network.RouteSegment(path[i], path[i+1]));
+    }
 
     return success;
 }

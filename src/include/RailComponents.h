@@ -59,14 +59,14 @@ namespace Rail {
         // IConnector
         virtual std::set<const ISegment*> GetNext(const ISegment* src);
         virtual void Connect(ISegment* target);
-        virtual void Select(ISegment* s1, ISegment* s2);
+        virtual bool Select(const ISegment* s1, const ISegment* s2);
         virtual void Fix(ISegment* src);
 
         private:
         std::string mName = "";
 
         std::set<const ISegment*> mAvailableSegments;
-        std::pair<ISegment*, ISegment*> mSelectedSegments;
+        std::pair<const ISegment*, const ISegment*> mSelectedSegments;
     };
 
     /**

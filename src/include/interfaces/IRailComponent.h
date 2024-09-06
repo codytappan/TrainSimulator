@@ -105,8 +105,9 @@ namespace Rail {
         /**
          *  Called to select connected segments in a connector
          *  @param s1, s2  The segments to connect, which will be traversed when traveling across the connector
+         *  @return true if the elements could be routed, false otherwise
          */
-        virtual void Select(ISegment* s1, ISegment* s2) = 0;
+        virtual bool Select(const ISegment* s1, const ISegment* s2) = 0;
 
         /**
          *  Called to fix a segment in a connector. The connector must always connect to this segment

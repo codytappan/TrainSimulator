@@ -19,7 +19,7 @@ const char * const Connector::GetInfo() const {
 }
 
 const IComponent* Connector::Traverse(const IComponent* src, Direction d) const {
-    IComponent* target = nullptr;
+    const IComponent* target = nullptr;
     // Connectors are traversed based on src component, not direction
     if(src == mSelectedSegments.first) {
         target = mSelectedSegments.second;
@@ -69,15 +69,16 @@ void Connector::Connect(ISegment* target) {
     }
 }
 
-void Connector::Select(ISegment *s1, ISegment *s2) {
+bool Connector::Select(const ISegment *s1, const ISegment *s2) {
     // TODO null check
     // Check to make sure that our targets are valid within our connected segments
     if(mAvailableSegments.find(s1) == mAvailableSegments.end() || mAvailableSegments.find(s2) == mAvailableSegments.end()) {
-        printf("ERROR Attempting to select a segment not in the available list\n");
-        return;
+        printf("WARNING Attempting to select a segment not in the available list\n");
+        return false;
     }
 
-    mSelectedSegments = std::pair<ISegment*, ISegment*>(s1, s2);
+    mSelectedSegments = std::pair<const ISegment*, const ISegment*>(s1, s2);
+    return true;
 }
 
 

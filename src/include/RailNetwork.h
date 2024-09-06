@@ -62,7 +62,7 @@ namespace Rail {
         /**
          *  Switch the connector between the given segments so that trains traverse from src to dst
          */
-        void RouteSegment(ISegment* src, ISegment* dst);
+        bool RouteSegment(const ISegment* src, const ISegment* dst);
 
         /**
          *  Set the given signal to a specific state
